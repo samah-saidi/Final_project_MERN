@@ -6,37 +6,56 @@ const budgetSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    month: {
+    category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: false
+    },
+    amount: {
         type: Number,
         required: true
     },
-    year: {
+    amountLimit: {
         type: Number,
-        required: true
+        required: false
     },
-    totalLimit: {
+    spent: {
         type: Number,
-        required: true
+        default: 0
     },
-    categories: [{
-        category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
-        limit: { type: Number }
-    }],
+    currentSpending: {
+        type: Number,
+        default: 0
+    },
+    period: {
+        type: String,
+        enum: ['Weekly', 'Monthly', 'Yearly'],
+        default: 'Monthly'
+    },
     isShared: {
         type: Boolean,
         default: false
     },
-    sharedBudget: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'SharedBudget'
-    },
     alerts: [{
-        threshold: { type: Number }, // percentage, e.g., 80
+        threshold: { type: Number }, // e.g., 80 for 80%
         triggered: { type: Boolean, default: false },
         dateTriggered: { type: Date }
-    }]
+    }],
+    startDate: {
+        type: Date,
+        default: Date.now
+    },
+    endDate: {
+        type: Date
+    },
+    isActive: {
+        type: Boolean,
+        default: true
+    }
 }, {
     timestamps: true
 });
+
+budgetSchema.index({ user: 1, category: 1, period: 1 }, { unique: true });
 
 module.exports = mongoose.model('Budget', budgetSchema);

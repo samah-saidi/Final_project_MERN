@@ -11,13 +11,22 @@ const userProfileSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    preferredCurrency: {
+    currency: {
         type: String,
-        default: 'USD'
+        default: 'DT'
+    },
+    phone: {
+        type: String
+    },
+    address: {
+        type: String
+    },
+    occupation: {
+        type: String
     },
     alertThreshold: {
         type: Number,
-        default: 80 // Percentage or amount? assuming percentage for now
+        default: 80
     },
     notificationPreferences: {
         email: { type: Boolean, default: true },
@@ -25,6 +34,9 @@ const userProfileSchema = new mongoose.Schema({
         sms: { type: Boolean, default: false }
     },
     avatar: {
+        type: String
+    },
+    profilePicture: {
         type: String
     },
     financialGoals: [{

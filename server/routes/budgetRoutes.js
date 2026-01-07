@@ -1,19 +1,41 @@
 const express = require('express');
 const router = express.Router();
-const budgetController = require('../controllers/budgetController');
-const sharedBudgetController = require('../controllers/sharedBudgetController');
+const {
+    getBudgetsByUser,
+    createBudget,
+    updateBudget,
+    deleteBudget
+} = require('../controllers/budgetController');
+const {
+    getSharedBudgetsByUser,
+    createSharedBudget,
+    addParticipant,
+    deleteSharedBudget
+} = require('../controllers/sharedBudgetController');
 const auth = require('../middleware/authMiddleware');
 
 // Personal Budgets
-router.get('/user/:userId', auth, budgetController.getBudgetsByUser);
-router.post('/', auth, budgetController.createBudget);
-router.put('/:id', auth, budgetController.updateBudget);
-router.delete('/:id', auth, budgetController.deleteBudget);
+router.route('/')
+    .post(auth, createBudget);
+
+router.route('/user/:userId')
+    .get(auth, getBudgetsByUser);
+
+router.route('/:id')
+    .put(auth, updateBudget)
+    .delete(auth, deleteBudget);
 
 // Shared Budgets
-router.get('/shared/user/:userId', auth, sharedBudgetController.getSharedBudgetsByUser);
-router.post('/shared', auth, sharedBudgetController.createSharedBudget);
-router.put('/shared/:id/participant', auth, sharedBudgetController.addParticipant);
-router.delete('/shared/:id', auth, sharedBudgetController.deleteSharedBudget);
+router.route('/shared')
+    .post(auth, createSharedBudget);
+
+router.route('/shared/user/:userId')
+    .get(auth, getSharedBudgetsByUser);
+
+router.route('/shared/:id')
+    .delete(auth, deleteSharedBudget);
+
+router.route('/shared/:id/participant')
+    .put(auth, addParticipant);
 
 module.exports = router;

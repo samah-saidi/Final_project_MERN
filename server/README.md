@@ -158,11 +158,20 @@ npm start
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `GET` | `/api/transactions/:userId` | Get all transactions for a user |
-| `POST` | `/api/transactions` | Create a new transaction |
-| `GET` | `/api/budgets/:userId` | Fetch user's active budgets |
+| `POST` | `/api/savings-goals` | Create a new savings goal |
 | `PUT` | `/api/savings-goals/:id` | Update savings goal progress |
-| `POST` | `/api/ai/advice` | Get personalized AI financial advice |
-| `POST` | `/api/ai/predict` | Predict future monthly expenses |
+
+### 🤖 AI Intelligence Endpoints
+| Method | Endpoint | Description | Access |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/ai/analyze-spending/:period` | Detailed spending analysis for a period | Private |
+| `POST` | `/api/ai/budget-strategy` | Generate strategy to meet budget goals | Private |
+| `POST` | `/api/ai/financial-bio` | Generate AI-driven user profile bio | Private |
+| `GET` | `/api/ai/market-insights` | Get global financial trends | Private |
+| `POST` | `/api/ai/finance-quiz/:topic` | Generate financial literacy quiz | Private |
+| `GET` | `/api/ai/personalized-advice/:userId` | Deep financial health report | Private |
+| `POST` | `/api/ai/similar-strategies/:id` | Suggest similar savings strategies | Public |
+| `POST` | `/api/ai/financial-assistant` | Interactive financial chatbot | Public |
 
 ---
 
@@ -171,14 +180,17 @@ npm start
 ```text
 smartwallet-ai/
 └── server/
-    ├── config/             # Database connection & dotEnv loader
+    ├── config/             # DB & Gemini AI Client configuration
     ├── controllers/        # Business logic controllers
     │   ├── authController.js
+    │   ├── aiController.js # Gemini AI Logic
     │   ├── userController.js
-    │   ├── transactionController.js
     │   └── ... (others)
     ├── middleware/         # Auth & Error handling middlewares
     ├── models/             # Mongoose Schemas (Data layer)
+    ├── routes/             # API Router definitions
+    │   ├── aiRoutes.js     # AI Logic Endpoints
+    │   └── ...
     │   ├── User.js
     │   ├── Transaction.js
     │   └── ... (9 total)

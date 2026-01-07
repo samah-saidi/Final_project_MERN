@@ -1,9 +1,19 @@
 const Category = require('../models/Category');
 
-// Get all categories
+// Get all categories for the authenticated user
 exports.getAllCategories = async (req, res) => {
     try {
-        const categories = await Category.find();
+        const categories = await Category.find({ user: req.user.id });
+        res.status(200).json(categories);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Get categories by a specific user ID (requested by frontend)
+exports.getCategoriesByUser = async (req, res) => {
+    try {
+        const categories = await Category.find({ user: req.params.userId });
         res.status(200).json(categories);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -12,8 +22,12 @@ exports.getAllCategories = async (req, res) => {
 
 // Create category
 exports.createCategory = async (req, res) => {
-    const category = new Category(req.body);
     try {
+        const categoryData = {
+            ...req.body,
+            user: req.user ? req.user.id : req.body.user // Handle both authenticated and direct ID
+        };
+        const category = new Category(categoryData);
         const newCategory = await category.save();
         res.status(201).json(newCategory);
     } catch (error) {

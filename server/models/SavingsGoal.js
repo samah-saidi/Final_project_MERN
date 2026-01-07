@@ -26,10 +26,9 @@ const savingsGoalSchema = new mongoose.Schema({
         enum: ['Low', 'Medium', 'High'],
         default: 'Medium'
     },
-    contributions: [{
-        amount: { type: Number },
-        date: { type: Date, default: Date.now }
-    }]
+    description: {
+        type: String
+    }
 }, {
     timestamps: true
 });

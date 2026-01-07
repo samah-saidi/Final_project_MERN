@@ -1,11 +1,29 @@
 const express = require('express');
 const router = express.Router();
-const savingsGoalController = require('../controllers/savingsGoalController');
+const {
+    getSavingsGoalsByUser,
+    createSavingsGoal,
+    updateSavingsGoal,
+    getGoalContributions,
+    addContribution,
+    deleteSavingsGoal
+} = require('../controllers/savingsGoalController');
 const auth = require('../middleware/authMiddleware');
 
-router.get('/user/:userId', auth, savingsGoalController.getSavingsGoalsByUser);
-router.post('/', auth, savingsGoalController.createSavingsGoal);
-router.put('/:id/contribute', auth, savingsGoalController.addContribution);
-router.delete('/:id', auth, savingsGoalController.deleteSavingsGoal);
+router.route('/')
+    .post(auth, createSavingsGoal);
+
+router.route('/user/:userId')
+    .get(auth, getSavingsGoalsByUser);
+
+router.route('/:id')
+    .put(auth, updateSavingsGoal)
+    .delete(auth, deleteSavingsGoal);
+
+router.route('/:id/contributions')
+    .get(auth, getGoalContributions);
+
+router.route('/:id/contribute')
+    .post(auth, addContribution);
 
 module.exports = router;

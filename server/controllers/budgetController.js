@@ -1,19 +1,57 @@
 const Budget = require('../models/Budget');
+const budgetService = require('../services/budgetService');
 
 // Get budgets for a user
 exports.getBudgetsByUser = async (req, res) => {
     try {
-        const budgets = await Budget.find({ user: req.params.userId }).populate('categories.category');
-        res.status(200).json(budgets);
+        const userId = req.params.userId || req.user.id;
+        const budgetStatus = await budgetService.getBudgetStatus(userId);
+        res.status(200).json(budgetStatus);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-// Create budget
+// Create budget (with upsert logic for convenience)
 exports.createBudget = async (req, res) => {
-    const budget = new Budget(req.body);
     try {
+        const { user, category, amount, amountLimit, period, isShared } = req.body;
+
+        // Use amount if provided, otherwise use amountLimit for backwards compatibility
+        const budgetAmount = amount || amountLimit;
+
+        // Check if budget exists for this category/period
+        const existingBudget = await Budget.findOne({ user, category, period });
+
+        if (existingBudget) {
+            existingBudget.amount = budgetAmount;
+            existingBudget.amountLimit = budgetAmount;
+            existingBudget.isShared = isShared;
+            const updatedBudget = await existingBudget.save();
+            return res.status(200).json(updatedBudget);
+        }
+
+        // Calculate End Date if not provided or just to be sure
+        let endDate = req.body.endDate;
+        if (!endDate) {
+            const start = new Date(req.body.startDate || new Date());
+            const end = new Date(start);
+            if (period === 'Weekly') end.setDate(start.getDate() + 7);
+            else if (period === 'Monthly') end.setMonth(start.getMonth() + 1);
+            else if (period === 'Yearly') end.setFullYear(start.getFullYear() + 1);
+            endDate = end;
+        }
+
+        const budget = new Budget({
+            user: req.user.id,
+            category,
+            amount: budgetAmount,
+            amountLimit: budgetAmount,
+            period: period || 'Monthly',
+            startDate: req.body.startDate || new Date(),
+            endDate: endDate,
+            isShared: isShared || false
+        });
         const newBudget = await budget.save();
         res.status(201).json(newBudget);
     } catch (error) {

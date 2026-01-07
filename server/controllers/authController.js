@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 // Register a new user
 exports.register = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { name, email, password } = req.body;
 
         // Check if user already exists
         let user = await User.findOne({ email });
@@ -15,7 +15,7 @@ exports.register = async (req, res) => {
 
         // Create new user
         user = new User({
-            username,
+            name,
             email,
             password
         });
@@ -39,7 +39,7 @@ exports.register = async (req, res) => {
             { expiresIn: '24h' },
             (err, token) => {
                 if (err) throw err;
-                res.status(201).json({ token, user: { id: user.id, username: user.username, email: user.email } });
+                res.status(201).json({ token, user: { id: user.id, name: user.name, email: user.email } });
             }
         );
     } catch (error) {
@@ -56,13 +56,13 @@ exports.login = async (req, res) => {
         // Check if user exists
         let user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: 'Invalid Credentials' });
+            return res.status(400).json({ message: 'Email ou mot de passe incorrect' });
         }
 
         // Compare password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid Credentials' });
+            return res.status(400).json({ message: 'Email ou mot de passe incorrect' });
         }
 
         // Create JWT
@@ -78,7 +78,7 @@ exports.login = async (req, res) => {
             { expiresIn: '24h' },
             (err, token) => {
                 if (err) throw err;
-                res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
+                res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
             }
         );
     } catch (error) {

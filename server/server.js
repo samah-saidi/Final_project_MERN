@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const connectDB = require('./config/db');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
+
 // Route Imports
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -15,6 +16,7 @@ const budgetRoutes = require('./routes/budgetRoutes');
 const savingsGoalRoutes = require('./routes/savingsGoalRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const aiRoutes = require('./routes/aiRoutes');
+
 
 // Connect to Database
 connectDB();
@@ -28,6 +30,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(morgan('dev'));
+//app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/api/auth', authRoutes);

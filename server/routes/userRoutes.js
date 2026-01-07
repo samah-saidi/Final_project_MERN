@@ -1,18 +1,40 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('../controllers/userController');
-const userProfileController = require('../controllers/userProfileController');
+const {
+    getAllUsers,
+    updateUserProfile,
+    getUserById,
+    updateUser,
+    deleteUser
+} = require('../controllers/userController');
+const {
+    getUserProfile,
+    upsertUserProfile,
+    uploadProfilePicture,
+    deleteUserProfile
+} = require('../controllers/userProfileController');
 const auth = require('../middleware/authMiddleware');
+const upload = require('../middleware/uploadMiddleware');
 
 // User routes
-router.get('/', auth, userController.getAllUsers);
-router.get('/:id', auth, userController.getUserById);
-router.put('/:id', auth, userController.updateUser);
-router.delete('/:id', auth, userController.deleteUser);
+router.route('/')
+    .get(auth, getAllUsers);
+
+router.route('/profile')
+    .put(auth, updateUserProfile);
+
+router.route('/:id')
+    .get(auth, getUserById)
+    .put(auth, updateUser)
+    .delete(auth, deleteUser);
 
 // User Profile routes
-router.get('/:userId/profile', auth, userProfileController.getUserProfile);
-router.post('/:userId/profile', auth, userProfileController.upsertUserProfile);
-router.delete('/:userId/profile', auth, userProfileController.deleteUserProfile);
+router.route('/:userId/profile')
+    .get(auth, getUserProfile)
+    .post(auth, upsertUserProfile)
+    .delete(auth, deleteUserProfile);
+
+router.route('/:userId/profile/upload')
+    .post(auth, upload.single('image'), uploadProfilePicture);
 
 module.exports = router;

@@ -1,44 +1,72 @@
 const Account = require('../models/Account');
 
 // Get all accounts for a user
-exports.getAccountsByUser = async (req, res) => {
+exports.getAccounts = async (req, res) => {
     try {
-        const accounts = await Account.find({ user: req.params.userId });
-        res.status(200).json(accounts);
+        const accounts = await Account.find({ user: req.user.id });
+        res.json(accounts);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error.message);
+        res.status(500).send('Server Error');
     }
 };
 
-// Create account
+// Create a new account
 exports.createAccount = async (req, res) => {
-    const account = new Account(req.body);
     try {
-        const newAccount = await account.save();
-        res.status(201).json(newAccount);
+        const newAccount = new Account({
+            name: req.body.name,
+            type: req.body.type,
+            balance: req.body.balance,
+            currency: req.body.currency,
+            user: req.user.id
+        });
+        const account = await newAccount.save();
+        res.json(account);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        console.error(error.message);
+        res.status(500).send('Server Error');
     }
 };
 
-// Update account
+// Update an account
 exports.updateAccount = async (req, res) => {
     try {
-        const account = await Account.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        let account = await Account.findById(req.params.id);
         if (!account) return res.status(404).json({ message: 'Account not found' });
-        res.status(200).json(account);
+
+        // Check ownership
+        if (account.user.toString() !== req.user.id) {
+            return res.status(401).json({ message: 'User not authorized' });
+        }
+
+        account = await Account.findByIdAndUpdate(
+            req.params.id,
+            { $set: req.body },
+            { new: true }
+        );
+        res.json(account);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        console.error(error.message);
+        res.status(500).send('Server Error');
     }
 };
 
-// Delete account
+// Delete an account
 exports.deleteAccount = async (req, res) => {
     try {
-        const account = await Account.findByIdAndDelete(req.params.id);
+        const account = await Account.findById(req.params.id);
         if (!account) return res.status(404).json({ message: 'Account not found' });
-        res.status(200).json({ message: 'Account deleted' });
+
+        // Check ownership
+        if (account.user.toString() !== req.user.id) {
+            return res.status(401).json({ message: 'User not authorized' });
+        }
+
+        await Account.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Account removed' });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error.message);
+        res.status(500).send('Server Error');
     }
 };

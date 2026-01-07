@@ -1,37 +1,42 @@
 const mongoose = require('mongoose');
 
 const accountSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+        trim: true
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
-    name: {
-        type: String,
-        required: true
-    },
     type: {
         type: String,
-        enum: ['Checking', 'Savings', 'Investment', 'Crypto'],
-        required: true
+        enum: ['Checking', 'Savings', 'Credit Card', 'Cash', 'Investment'],
+        default: 'Checking'
     },
     balance: {
         type: Number,
         default: 0
     },
-    bankName: {
-        type: String
-    },
     currency: {
         type: String,
-        default: 'USD'
+        default: 'DT'
     },
-    transactions: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Transaction'
-    }]
+    icon: {
+        type: String,
+        default: '🏦'
+    },
+    color: {
+        type: String,
+        default: '#667eea'
+    }
 }, {
     timestamps: true
 });
+
+// Index for performance
+accountSchema.index({ user: 1 });
 
 module.exports = mongoose.model('Account', accountSchema);

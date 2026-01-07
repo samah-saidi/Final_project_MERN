@@ -35,3 +35,23 @@ exports.deleteUserProfile = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+// Upload profile picture
+exports.uploadProfilePicture = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'Veuillez sélectionner une image.' });
+        }
+
+        const profilePicturePath = `/uploads/${req.file.filename}`;
+
+        const profile = await UserProfile.findOneAndUpdate(
+            { user: req.params.userId },
+            { profilePicture: profilePicturePath },
+            { new: true, upsert: true }
+        );
+
+        res.status(200).json(profile);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
