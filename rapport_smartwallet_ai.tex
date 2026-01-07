@@ -1,0 +1,178 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{booktabs}
+\usepackage{enumitem}
+
+% Configuration de la géométrie
+\geometry{margin=2.5cm}
+
+% Couleurs personnalisées
+\definecolor{mainblue}{RGB}{102, 126, 234}
+\definecolor{codebackground}{RGB}{240, 240, 240}
+\definecolor{codegreen}{RGB}{0, 150, 0}
+
+% Configuration de listings pour le code
+\lstset{
+    backgroundcolor=\color{codebackground},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{mainblue},
+    commentstyle=\color{codegreen},
+    stringstyle=\color{red},
+    breaklines=true,
+    frame=single,
+    showstringspaces=false
+}
+
+% Style des titres
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries\color{mainblue}}
+  {\filleft\Large\chaptertitlename\ \thechapter}
+  {1ex}
+  {\titlerule\vspace{1ex}\filleft\Huge}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=mainblue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
+\title{
+    \vspace{2cm}
+    \textbf{\Huge SmartWallet AI} \\
+    \vspace{0.5cm}
+    \Large Rapport Technique de Développement \\
+    \vspace{1cm}
+    \textit{Plateforme MERN Stack avec Intelligence Artificielle Générative}
+}
+
+\author{Réalisé par : Samah Saidi}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\chapter{Analyse du Projet}
+\section{Problématique}
+La gestion financière personnelle est souvent perçue comme une tâche complexe et fastidieuse. La plupart des outils existants sont soit trop simplistes, soit trop rigides, manquant d'une couche d'analyse prédictive et de conseils personnalisés.
+
+\section{Solution Proposée}
+SmartWallet AI répond à ce besoin en proposant une plateforme hautement visuelle et intelligente. L'intégration du modèle Gemini 1.5 Flash permet de transformer les données brutes (transactions) en informations exploitables (insight) et en éducation financière (quiz).
+
+\section{Besoins Fonctionnels}
+\begin{itemize}
+    \item \textbf{Gestion des profils} : Inscription, connexion sécurisée et personnalisation du profil financier.
+    \item \textbf{Suivi multi-comptes} : Centralisation des soldes (Courant, Épargne, Crypto).
+    \item \textbf{Catégorisation intelligente} : Organisation des dépenses par thèmes personnalisables.
+    \item \textbf{Intelligence Artificielle} : Chatbot interactif, conseiller budgétaire et quiz d'éducation.
+\end{itemize}
+
+\chapter{Conception Technique}
+\section{Architecture MERN Stack}
+Le projet repose sur quatre piliers technologiques :
+\begin{enumerate}
+    \item \textbf{MongoDB Atlas} : NoSQL pour la flexibilité des documents financiers.
+    \item \textbf{Express.js} : Framework backend minimaliste et performant.
+    \item \textbf{React.js 19} : Bibliothèque frontend pour une interface réactive.
+    \item \textbf{Node.js 22} : Environnement d'exécution pour la logique serveur.
+\end{enumerate}
+
+\section{Modélisation de la Base de Données}
+Chaque document est relié à un utilisateur via son \texttt{ObjectId}. Voici les schémas principaux :
+
+\subsection{Schéma Account}
+\begin{itemize}
+    \item \texttt{name}: String (ex: "Carte Bleue")
+    \item \texttt{type}: Enum (Checking, Savings, Credit Card, Investment)
+    \item \texttt{balance}: Number (Solde actuel)
+    \item \texttt{currency}: String (par défaut "DT")
+\end{itemize}
+
+\subsection{Schéma Transaction}
+\begin{itemize}
+    \item \texttt{account}: ObjectId (Référence au compte débité/crédité)
+    \item \texttt{amount}: Number (Montant de la transaction)
+    \item \texttt{type}: Enum (Income, Expense)
+    \item \texttt{tags}: Object (isRecurring, isImportant)
+\end{itemize}
+
+\subsection{Schéma SavingsGoal}
+\begin{itemize}
+    \item \texttt{targetAmount}: Montant cible.
+    \item \texttt{currentAmount}: Progression actuelle.
+    \item \texttt{priority}: Enum (Low, Medium, High).
+\end{itemize}
+
+\chapter{Implémentation de l'Intelligence Artificielle}
+\section{Intégration du SDK Google Generative AI}
+Nous utilisons le modèle \textit{gemini-1.5-flash}. L'IA est configurée pour agir comme un expert financier certifié.
+
+\section{Endpoints de l'API IA}
+Le module IA expose plusieurs points d'entrée :
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Méthode} & \textbf{Endpoint} & \textbf{Description} \\ \midrule
+POST & /api/ai/analyze-spending & Analyse des dépenses d'une période. \\
+GET & /api/ai/personalized-advice & Rapport de santé financière. \\
+POST & /api/ai/financial-assistant & Chatbot de discussion libre. \\
+POST & /api/ai/finance-quiz & Génération de questions éducatives. \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\section{Stratégie de Prompting}
+Pour l'AI Advisor, le prompt envoyé à Gemini contient :
+\begin{lstlisting}[language=JavaScript]
+const prompt = `Agis comme un conseiller financier expert. 
+Analyse ces transactions : ${JSON.stringify(userTransactions)}. 
+Identifie les gaspillages et propose une strategie d'epargne.`;
+\end{lstlisting}
+
+\chapter{Interface Utilisateur (UI/UX)}
+\section{Design System : Glassmorphism}
+L'application utilise un style "Glassmorphism" caractérisé par :
+\begin{itemize}
+    \item Des arrière-plans semi-transparents avec flou (backdrop-filter).
+    \item Des bordures fines et lumineuses.
+    \item Une palette de couleurs foncées (Dark Mode) pour réduire la fatigue visuelle.
+\end{itemize}
+
+\section{Composants Clés}
+\begin{itemize}
+    \item \textbf{AI Chatbot Box} : Composant flottant persistant avec gestion d'historique.
+    \item \textbf{Dashboard Skeletons} : Indicateurs de chargement fluides pour une meilleure perception de vitesse.
+    \item \textbf{SweetAlert2} : Utilisé pour toutes les confirmations et retours d'erreurs graphiques.
+\end{itemize}
+
+\chapter{Sécurité et Performance}
+\section{Authentification et Autorisation}
+\begin{itemize}
+    \item Utilisation de JSON Web Tokens (JWT) expirant après 24h.
+    \item Hachage des mots de passe avec \textit{bcryptjs} (10 rounds de salage).
+    \item Middleware de protection pour toutes les routes sensibles.
+\end{itemize}
+
+\section{Optimisation}
+\begin{itemize}
+    \item Indexation MongoDB sur les champs \texttt{user}, \texttt{date} et \texttt{account} pour des requêtes ultra-rapides.
+    \item Compression des réponses via middleware.
+    \item Gestion asynchrone des appels IA pour ne pas bloquer le thread principal.
+\end{itemize}
+
+\chapter{Conclusion}
+Le projet SmartWallet AI démontre comment l'intégration de technologies d'IA générative peut transformer un outil utilitaire en un compagnon quotidien indispensable. La plateforme est prête pour une mise en production avec une scalabilité assurée par la stack MERN et une expérience utilisateur de niveau premium.
+
+\end{document}
