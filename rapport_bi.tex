@@ -1,0 +1,837 @@
+\documentclass[12pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{booktabs}
+
+% Configuration de la page
+\geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Mini-Projet BI - SmartWallet}
+\fancyhead[R]{\thepage}
+\fancyfoot[C]{École Polytechnique de Sousse - 2025/2026}
+
+% Configuration des couleurs
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{primarycolor}{RGB}{0, 102, 204}
+
+% Configuration des listings (code)
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+% Hyperlinks
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Mini-Projet BI},
+    pdfpagemode=FullScreen,
+}
+
+% Commandes personnalisées
+\newcommand{\code}[1]{\texttt{#1}}
+
+\begin{document}
+
+% Page de garde
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    {\huge\bfseries Mini-Projet Data Analytics \& Business Intelligence\par}
+    \vspace{1cm}
+    {\Large SmartWallet - Plateforme d'Analyse Financière Intelligente\par}
+    \vspace{2cm}
+    
+    \includegraphics[width=0.3\textwidth]{logo_eps.png}
+    \vspace{1cm}
+    
+    {\Large\itshape Présenté par :\par}
+    {\large Nom Prénom 1\par}
+    {\large Nom Prénom 2\par}
+    \vspace{1cm}
+    
+    {\Large Encadré par :\par}
+    {\large Dr-Ing. Nedya BOUFARES\par}
+    \vspace{2cm}
+    
+    {\large École Polytechnique de Sousse\par}
+    {\large 5ème Année Ingénierie Informatique\par}
+    {\large Année Universitaire 2025-2026\par}
+    
+    \vfill
+    
+    {\large \today\par}
+\end{titlepage}
+
+% Table des matières
+\tableofcontents
+\newpage
+
+% Liste des figures
+\listoffigures
+\newpage
+
+% Liste des tableaux
+\listoftables
+\newpage
+
+%=============================================================================
+% INTRODUCTION
+%=============================================================================
+\section{Introduction}
+
+\subsection{Contexte du Projet}
+Ce mini-projet s'inscrit dans le cadre du module \textbf{Data Analytics and Business Intelligence} destiné aux étudiants de 5ème année d'ingénierie en informatique. Il vise à consolider les compétences en analyse de données, ETL, modélisation décisionnelle, data visualisation et intégration BI dans une application existante.
+
+\subsection{Objectifs}
+Les principaux objectifs de ce projet sont :
+
+\begin{itemize}[leftmargin=2cm]
+    \item[\checkmark] Mettre en œuvre un processus BI complet à partir de données existantes
+    \item[\checkmark] Concevoir et implémenter un processus ETL (Extract, Transform, Load)
+    \item[\checkmark] Construire un entrepôt de données (Data Warehouse) basé sur un modèle en étoile
+    \item[\checkmark] Exploiter les outils Power BI pour l'analyse et la visualisation des données
+    \item[\checkmark] Intégrer les résultats décisionnels dans une application MERN
+\end{itemize}
+
+\subsection{Présentation de SmartWallet}
+\textbf{SmartWallet} est une plateforme de gestion financière personnelle développée avec la stack MERN (MongoDB, Express.js, React, Node.js). Elle permet aux utilisateurs de :
+
+\begin{itemize}
+    \item Gérer leurs comptes bancaires
+    \item Suivre leurs transactions (revenus et dépenses)
+    \item Créer et suivre des budgets
+    \item Définir des objectifs d'épargne
+    \item Collaborer sur des budgets partagés
+\end{itemize}
+
+L'objectif de ce projet BI est d'enrichir SmartWallet avec des capacités d'analyse décisionnelle avancées pour offrir aux utilisateurs des insights sur leurs habitudes financières.
+
+%=============================================================================
+% ARCHITECTURE BI GLOBALE
+%=============================================================================
+\section{Architecture BI Globale}
+
+\subsection{Vue d'Ensemble}
+
+L'architecture Business Intelligence de SmartWallet suit un processus classique de BI moderne, allant de la source opérationnelle (MongoDB) jusqu'à la restitution finale dans l'application MERN.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        node distance=2cm,
+        box/.style={rectangle, draw, fill=blue!20, text width=3cm, text centered, rounded corners, minimum height=1cm},
+        arrow/.style={->, >=stealth, thick}
+    ]
+        % Nodes
+        \node[box] (mongo) {MongoDB\\(Base Opérationnelle)};
+        \node[box, below of=mongo] (etl) {Processus ETL\\(Python)};
+        \node[box, below of=etl] (dw) {Data Warehouse\\(MySQL)};
+        \node[box, below of=dw] (powerbi) {Power BI\\(Dashboards)};
+        \node[box, below of=powerbi] (mern) {Application MERN\\(Intégration)};
+        
+        % Arrows
+        \draw[arrow] (mongo) -- (etl) node[midway, right] {Extraction};
+        \draw[arrow] (etl) -- (dw) node[midway, right] {Chargement};
+        \draw[arrow] (dw) -- (powerbi) node[midway, right] {Connexion};
+        \draw[arrow] (powerbi) -- (mern) node[midway, right] {Embed};
+    \end{tikzpicture}
+    \caption{Architecture BI de SmartWallet}
+    \label{fig:architecture}
+\end{figure}
+
+\subsection{Composants de l'Architecture}
+
+\subsubsection{Couche Source (MongoDB)}
+\begin{itemize}
+    \item \textbf{Rôle} : Base de données opérationnelle de l'application MERN
+    \item \textbf{Technologie} : MongoDB (NoSQL, orienté documents)
+    \item \textbf{Collections principales} : users, categories, accounts, transactions, budgets, savingsgoals
+    \item \textbf{Volume} : Environ 6000 transactions sur 12 mois pour 30 utilisateurs
+\end{itemize}
+
+\subsubsection{Couche ETL (Python)}
+\begin{itemize}
+    \item \textbf{Rôle} : Extraction, transformation et chargement des données
+    \item \textbf{Technologie} : Python avec PyMongo, Pandas, MySQL Connector
+    \item \textbf{Fréquence} : Quotidienne (automatisée via cron)
+\end{itemize}
+
+\subsubsection{Couche Stockage (Data Warehouse)}
+\begin{itemize}
+    \item \textbf{Rôle} : Entrepôt de données optimisé pour l'analyse
+    \item \textbf{Technologie} : MySQL (XAMPP)
+    \item \textbf{Modélisation} : Schéma en étoile avec 1 table de faits et 4 tables de dimensions
+\end{itemize}
+
+\subsubsection{Couche Analyse (Power BI)}
+\begin{itemize}
+    \item \textbf{Rôle} : Visualisation et analyse des données
+    \item \textbf{Technologie} : Power BI Desktop + Power BI Service
+    \item \textbf{Fonctionnalités} : Dashboards interactifs, mesures DAX, filtres dynamiques
+\end{itemize}
+
+\subsubsection{Couche Présentation (MERN)}
+\begin{itemize}
+    \item \textbf{Rôle} : Intégration des dashboards dans l'application web
+    \item \textbf{Technologie} : React avec powerbi-client-react
+    \item \textbf{Mode} : Embedding via Power BI Service
+\end{itemize}
+
+%=============================================================================
+% SOURCES DE DONNÉES
+%=============================================================================
+\section{Sources de Données}
+
+\subsection{Base de Données MongoDB}
+
+La base de données opérationnelle MongoDB \code{smartwallet} contient les collections suivantes :
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{Collection} & \textbf{Description} & \textbf{Volume} \\
+\hline
+users & Informations des utilisateurs & 30 \\
+categories & Catégories de transactions & 13 \\
+accounts & Comptes bancaires & 60 \\
+transactions & Transactions financières & 6000 \\
+budgets & Budgets mensuels & 30 \\
+savingsgoals & Objectifs d'épargne & 60 \\
+\hline
+\end{tabular}
+\caption{Collections MongoDB}
+\label{tab:collections}
+\end{table}
+
+\subsection{Génération des Données de Test}
+
+Pour alimenter la base de données avec des données réalistes, nous avons développé un script de seed utilisant la bibliothèque \textbf{Faker.js}.
+
+\subsubsection{Configuration du Seed}
+\begin{lstlisting}[language=JavaScript, caption=Configuration du seed de données]
+const CONFIG = {
+  USERS_COUNT: 30,              // Nombre d'utilisateurs
+  ACCOUNTS_PER_USER: 2,         // Comptes par utilisateur
+  TRANSACTIONS_PER_USER: 200,   // Transactions sur 12 mois
+  BUDGETS_PER_USER: 1,
+  SAVINGS_GOALS_PER_USER: 2
+};
+\end{lstlisting}
+
+\subsubsection{Catégories Prédéfinies}
+
+Les catégories de transactions incluent :
+
+\begin{multicols}{2}
+\begin{itemize}
+    \item Alimentation
+    \item Transport
+    \item Logement
+    \item Loisirs
+    \item Shopping
+    \item Santé
+    \item Éducation
+    \item Restaurants
+    \item Factures
+    \item Abonnements
+    \item Salaire (revenu)
+    \item Freelance (revenu)
+    \item Investissements (revenu)
+\end{itemize}
+\end{multicols}
+
+\subsection{Caractéristiques des Données}
+
+\begin{itemize}
+    \item \textbf{Période} : 12 mois (de janvier 2024 à janvier 2025)
+    \item \textbf{Distribution} : 80\% de dépenses, 20\% de revenus (distribution réaliste)
+    \item \textbf{Montants} : Variables selon la catégorie (ex: Logement 200-800 TND, Alimentation 10-150 TND)
+    \item \textbf{Récurrence} : 15\% de transactions récurrentes (salaire, loyer, abonnements)
+\end{itemize}
+
+%=============================================================================
+% PROCESSUS ETL
+%=============================================================================
+\section{Processus ETL}
+
+\subsection{Vue d'Ensemble du Processus}
+
+Le processus ETL est implémenté en Python et se décompose en trois phases principales :
+
+\begin{enumerate}
+    \item \textbf{Extract} : Extraction des données depuis MongoDB
+    \item \textbf{Transform} : Nettoyage, transformation et enrichissement
+    \item \textbf{Load} : Chargement dans le Data Warehouse MySQL
+\end{enumerate}
+
+\subsection{Architecture du Projet ETL}
+
+\begin{lstlisting}[caption=Structure du projet ETL]
+etl/
+|-- config/
+|   |-- __init__.py
+|   `-- database.py              # Connexions MongoDB + MySQL
+|-- extractors/
+|   |-- __init__.py
+|   `-- mongo_extractor.py       # Extraction depuis MongoDB
+|-- transformers/
+|   |-- __init__.py
+|   `-- data_transformer.py      # Transformations
+|-- loaders/
+|   |-- __init__.py
+|   `-- warehouse_loader.py      # Chargement dans DW
+|-- utils/
+|   |-- __init__.py
+|   `-- helpers.py
+|-- .env                          # Variables d'environnement
+|-- requirements.txt              # Dependances Python
+`-- main_etl.py                   # Script principal
+\end{lstlisting}
+
+\subsection{Phase 1 : Extraction (Extract)}
+
+\subsubsection{Connexion aux Sources}
+
+\begin{lstlisting}[language=Python, caption=Connexion MongoDB et MySQL]
+import pymongo
+import mysql.connector
+from dotenv import load_dotenv
+
+class DatabaseConnections:
+    def __init__(self):
+        # Connexion MongoDB
+        self.mongo_client = pymongo.MongoClient(
+            os.getenv('MONGO_URI')
+        )
+        self.mongo_db = self.mongo_client[
+            os.getenv('MONGO_DB_NAME')
+        ]
+        
+        # Connexion MySQL
+        self.mysql_conn = mysql.connector.connect(
+            host=os.getenv('MYSQL_HOST'),
+            user=os.getenv('MYSQL_USER'),
+            password=os.getenv('MYSQL_PASSWORD'),
+            database=os.getenv('MYSQL_DB_NAME')
+        )
+\end{lstlisting}
+
+\subsubsection{Extraction des Données}
+
+Les données sont extraites depuis MongoDB en utilisant PyMongo :
+
+\begin{lstlisting}[language=Python, caption=Extraction des transactions]
+def extract_transactions(self):
+    """Extraire les transactions avec jointures"""
+    pipeline = [
+        {
+            '$lookup': {
+                'from': 'users',
+                'localField': 'user',
+                'foreignField': '_id',
+                'as': 'user_data'
+            }
+        },
+        {
+            '$lookup': {
+                'from': 'categories',
+                'localField': 'category',
+                'foreignField': '_id',
+                'as': 'category_data'
+            }
+        },
+        {
+            '$lookup': {
+                'from': 'accounts',
+                'localField': 'account',
+                'foreignField': '_id',
+                'as': 'account_data'
+            }
+        }
+    ]
+    
+    transactions = list(
+        self.db.transactions.aggregate(pipeline)
+    )
+    return pd.DataFrame(transactions)
+\end{lstlisting}
+
+\subsection{Phase 2 : Transformation (Transform)}
+
+\subsubsection{Nettoyage des Données}
+
+Les transformations appliquées incluent :
+
+\begin{itemize}
+    \item \textbf{Suppression des doublons} : Basée sur les clés primaires
+    \item \textbf{Gestion des valeurs manquantes} : Remplacement par des valeurs par défaut
+    \item \textbf{Conversion des types} : ObjectId → String, Dates → Format standard
+    \item \textbf{Normalisation} : Uniformisation des formats (devises, noms)
+\end{itemize}
+
+\begin{lstlisting}[language=Python, caption=Nettoyage des utilisateurs]
+def clean_users(df_users):
+    # Supprimer les doublons
+    df_users = df_users.drop_duplicates(subset=['user_id'])
+    
+    # Gerer les valeurs manquantes
+    df_users['full_name'].fillna('Unknown', inplace=True)
+    df_users['email'].fillna(
+        'no-email@example.com', 
+        inplace=True
+    )
+    
+    # Extraire la date d'inscription
+    df_users['registration_date'] = pd.to_datetime(
+        df_users['createdAt']
+    ).dt.date
+    
+    return df_users
+\end{lstlisting}
+
+\subsubsection{Enrichissement des Données}
+
+\begin{lstlisting}[language=Python, caption=Creation de la cle de date]
+def transform_transactions(df_transactions):
+    # Creer la cle de date (YYYYMMDD)
+    df_transactions['date_key'] = pd.to_datetime(
+        df_transactions['date']
+    ).dt.strftime('%Y%m%d').astype(int)
+    
+    # Determiner type (revenu/depense)
+    df_transactions['is_income'] = (
+        df_transactions['type'] == 'income'
+    )
+    
+    return df_transactions
+\end{lstlisting}
+
+\subsubsection{Génération de la Dimension Temps}
+
+\begin{lstlisting}[language=Python, caption=Generation dimension temps]
+def generate_date_dimension(
+    start_date='2020-01-01', 
+    end_date='2030-12-31'
+):
+    dates = pd.date_range(
+        start=start_date, 
+        end=end_date, 
+        freq='D'
+    )
+    
+    df_date = pd.DataFrame({
+        'date_key': dates.strftime('%Y%m%d').astype(int),
+        'full_date': dates.date,
+        'day': dates.day,
+        'month': dates.month,
+        'year': dates.year,
+        'day_of_week': dates.dayofweek,
+        'day_name': dates.day_name(),
+        'month_name': dates.month_name(),
+        'quarter': dates.quarter,
+        'is_weekend': dates.dayofweek.isin([5, 6])
+    })
+    
+    return df_date
+\end{lstlisting}
+
+\subsection{Phase 3 : Chargement (Load)}
+
+\subsubsection{Stratégie de Chargement}
+
+Nous utilisons une stratégie de chargement \textbf{upsert} (update or insert) :
+
+\begin{lstlisting}[language=Python, caption=Chargement des dimensions]
+def load_dim_user(self, df_users):
+    query = """
+    INSERT INTO dim_user (
+        user_id, full_name, email, registration_date
+    )
+    VALUES (%s, %s, %s, %s)
+    ON DUPLICATE KEY UPDATE
+        full_name = VALUES(full_name),
+        email = VALUES(email)
+    """
+    
+    data = df_users[[
+        'user_id', 'full_name', 
+        'email', 'registration_date'
+    ]].values.tolist()
+    
+    self.cursor.executemany(query, data)
+    self.connection.commit()
+\end{lstlisting}
+
+\subsubsection{Chargement de la Table de Faits}
+
+\begin{lstlisting}[language=Python, caption=Chargement de fact\_transaction]
+def load_fact_transaction(self, df_transactions):
+    # Recuperer les mappings des cles
+    self.cursor.execute(
+        "SELECT user_id, user_key FROM dim_user"
+    )
+    user_mapping = {
+        row[0]: row[1] 
+        for row in self.cursor.fetchall()
+    }
+    
+    # Mapper les cles etrangeres
+    df_transactions['user_key'] = (
+        df_transactions['user_id'].map(user_mapping)
+    )
+    
+    query = """
+    INSERT INTO fact_transaction (
+        user_key, category_key, account_key, date_key,
+        amount, is_income, transaction_count
+    )
+    VALUES (%s, %s, %s, %s, %s, %s, %s)
+    """
+    
+    self.cursor.executemany(query, data_list)
+    self.connection.commit()
+\end{lstlisting}
+
+\subsection{Métadonnées ETL}
+
+Pour suivre l'exécution du processus ETL :
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Champ} & \textbf{Type} & \textbf{Description} \\
+\hline
+etl\_id & INT & Identifiant unique \\
+last\_run & TIMESTAMP & Date d'exécution \\
+status & VARCHAR(50) & success/failed \\
+records\_processed & INT & Nb de records \\
+error\_message & TEXT & Message d'erreur \\
+\hline
+\end{tabular}
+\caption{Table etl\_metadata}
+\label{tab:etl-metadata}
+\end{table}
+
+\subsection{Résultats de l'Exécution ETL}
+
+\begin{tcolorbox}[colback=green!5!white, colframe=green!75!black, title=Résultat ETL]
+\begin{verbatim}
+============================================================
+🚀 PROCESSUS ETL - SmartWallet Data Warehouse
+============================================================
+✅ MongoDB connecté
+✅ MySQL connecté
+
+📦 PHASE 1: EXTRACTION
+   ✅ Utilisateurs extraits: 30
+   ✅ Catégories extraites: 13
+   ✅ Comptes extraits: 60
+   ✅ Transactions extraites: 6000
+
+🔄 PHASE 2: TRANSFORMATION
+   ✅ Utilisateurs transformés: 30
+   ✅ Catégories transformées: 13
+   ✅ Comptes transformés: 60
+   ✅ Transactions transformées: 6000
+   ✅ Dimension temps générée: 4018 jours
+
+📥 PHASE 3: CHARGEMENT
+   ✅ 4018 dates chargées dans dim_date
+   ✅ 30 utilisateurs chargés dans dim_user
+   ✅ 13 catégories chargées dans dim_category
+   ✅ 60 comptes chargés dans dim_account
+   ✅ 6000 transactions chargées dans fact_transaction
+
+✅ ETL TERMINÉ AVEC SUCCÈS
+⏱️  Durée totale: 8.35 secondes
+\end{verbatim}
+\end{tcolorbox}
+
+%=============================================================================
+% DATA WAREHOUSE
+%=============================================================================
+\section{Data Warehouse}
+
+\subsection{Choix du SGBD}
+
+Nous avons opté pour \textbf{MySQL} (via XAMPP) pour les raisons suivantes :
+
+\begin{itemize}
+    \item Compatibilité native avec Power BI
+    \item Facilité de déploiement local (XAMPP)
+    \item Performance suffisante pour notre volume de données
+    \item Simplicité d'administration
+\end{itemize}
+
+\subsection{Modélisation en Étoile}
+
+\subsubsection{Architecture du Modèle}
+
+Le Data Warehouse suit une architecture en \textbf{étoile} (star schema) composée de :
+\begin{itemize}
+    \item \textbf{1 table de faits} : \code{fact\_transaction}
+    \item \textbf{4 tables de dimensions} : \code{dim\_user}, \code{dim\_category}, \code{dim\_account}, \code{dim\_date}
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        fact/.style={rectangle, draw=red!60, fill=red!5, very thick, minimum width=3cm, minimum height=1.5cm},
+        dim/.style={rectangle, draw=blue!60, fill=blue!5, very thick, minimum width=2.5cm, minimum height=1cm},
+        arrow/.style={->, >=stealth, thick}
+    ]
+        % Fact table
+        \node[fact] (fact) at (0,0) {\textbf{FACT\_TRANSACTION}};
+        
+        % Dimensions
+        \node[dim] (user) at (-4,3) {DIM\_USER};
+        \node[dim] (category) at (4,3) {DIM\_CATEGORY};
+        \node[dim] (account) at (-4,-3) {DIM\_ACCOUNT};
+        \node[dim] (date) at (4,-3) {DIM\_DATE};
+        
+        % Arrows
+        \draw[arrow] (user) -- (fact);
+        \draw[arrow] (category) -- (fact);
+        \draw[arrow] (account) -- (fact);
+        \draw[arrow] (date) -- (fact);
+    \end{tikzpicture}
+    \caption{Modèle en étoile du Data Warehouse}
+    \label{fig:star-schema}
+\end{figure}
+
+\subsection{Description des Tables}
+
+\subsubsection{Table de Faits : fact\_transaction}
+
+La table de faits contient les transactions avec les mesures et les clés étrangères vers les dimensions.
+
+\begin{longtable}{|l|l|p{6cm}|}
+\hline
+\textbf{Colonne} & \textbf{Type} & \textbf{Description} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Colonne} & \textbf{Type} & \textbf{Description} \\
+\hline
+\endhead
+transaction\_key & BIGINT & Clé primaire (auto-increment) \\
+user\_key & INT & FK vers dim\_user \\
+category\_key & INT & FK vers dim\_category \\
+account\_key & INT & FK vers dim\_account \\
+date\_key & INT & FK vers dim\_date \\
+amount & DECIMAL(15,2) & Montant de la transaction \\
+is\_income & BOOLEAN & TRUE si revenu, FALSE si dépense \\
+transaction\_count & INT & Toujours 1 (pour COUNT) \\
+\hline
+\caption{Structure de fact\_transaction}
+\label{tab:fact-transaction}
+\end{longtable}
+
+\subsubsection{Dimension : dim\_user}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Colonne} & \textbf{Type} & \textbf{Description} \\
+\hline
+user\_key & INT & Clé primaire \\
+user\_id & VARCHAR(50) & ID MongoDB (unique) \\
+full\_name & VARCHAR(255) & Nom complet \\
+email & VARCHAR(255) & Email \\
+registration\_date & DATE & Date d'inscription \\
+country & VARCHAR(100) & Pays \\
+created\_at & TIMESTAMP & Date de création \\
+\hline
+\end{tabular}
+\caption{Structure de dim\_user}
+\label{tab:dim-user}
+\end{table}
+
+\subsubsection{Dimension : dim\_category}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Colonne} & \textbf{Type} & \textbf{Description} \\
+\hline
+category\_key & INT & Clé primaire \\
+category\_id & VARCHAR(50) & ID MongoDB (unique) \\
+category\_name & VARCHAR(255) & Nom catégorie \\
+category\_type & VARCHAR(50) & expense/income \\
+icon & VARCHAR(50) & Emoji/icône \\
+created\_at & TIMESTAMP & Date de création \\
+\hline
+\end{tabular}
+\caption{Structure de dim\_category}
+\label{tab:dim-category}
+\end{table}
+
+\subsubsection{Dimension : dim\_account}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|p{5cm}|}
+\hline
+\textbf{Colonne} & \textbf{Type} & \textbf{Description} \\
+\hline
+account\_key & INT & Clé primaire \\
+account\_id & VARCHAR(50) & ID MongoDB (unique) \\
+account\_name & VARCHAR(255) & Nom du compte \\
+account\_type & VARCHAR(50) & Courant, Épargne, etc. \\
+institution & VARCHAR(255) & Nom de la banque \\
+currency & VARCHAR(10) & TND, EUR, USD \\
+is\_active & BOOLEAN & Compte actif/inactif \\
+created\_at & TIMESTAMP & Date de création \\
+\hline
+\end{tabular}
+\caption{Structure de dim\_account}
+\label{tab:dim-account}
+\end{table}
+
+\subsubsection{Dimension : dim\_date}
+
+La dimension temps couvre la période 2020-2030 (4018 jours).
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Colonne} & \textbf{Type} & \textbf{Description} \\
+\hline
+date\_key & INT & Clé primaire (YYYYMMDD) \\
+full\_date & DATE & Date complète (unique) \\
+day & INT & Jour du mois (1-31) \\
+month & INT & Mois (1-12) \\
+year & INT & Année \\
+day\_of\_week & INT & Jour semaine (0-6) \\
+day\_name & VARCHAR(20) & Nom du jour \\
+month\_name & VARCHAR(20) & Nom du mois \\
+quarter & INT & Trimestre (1-4) \\
+is\_weekend & BOOLEAN & TRUE si samedi/dimanche \\
+\hline
+\end{tabular}
+\caption{Structure de dim\_date}
+\label{tab:dim-date}
+\end{table}
+
+\subsection{Script SQL de Création}
+
+\begin{lstlisting}[language=SQL, caption=Initialisation du Data Warehouse]
+-- Script d'initialisation du Data Warehouse SmartWallet
+CREATE DATABASE IF NOT EXISTS smartwallet_dw;
+USE smartwallet_dw;
+
+-- Dimension Utilisateur
+CREATE TABLE IF NOT EXISTS dim_user (
+    user_key INT AUTO_INCREMENT PRIMARY KEY,
+    user_id VARCHAR(50) UNIQUE NOT NULL,
+    full_name VARCHAR(100),
+    email VARCHAR(100),
+    registration_date DATE,
+    INDEX (user_id)
+) ENGINE=InnoDB;
+
+-- Table de Faits : Transactions
+CREATE TABLE IF NOT EXISTS fact_transaction (
+    fact_key INT AUTO_INCREMENT PRIMARY KEY,
+    user_key INT NOT NULL,
+    category_key INT NOT NULL,
+    account_key INT NOT NULL,
+    date_key INT NOT NULL,
+    amount DECIMAL(15, 2) NOT NULL,
+    is_income BOOLEAN NOT NULL,
+    FOREIGN KEY (user_key) REFERENCES dim_user(user_key)
+) ENGINE=InnoDB;
+\end{lstlisting}
+
+%=============================================================================
+% ANALYSE ET VISUALISATION POWER BI
+%=============================================================================
+\section{Analyse et Visualisation Power BI}
+
+\subsection{Modélisation des Données}
+Dans Power BI, nous avons établi des relations de type **1:N** entre les tables de dimensions (\code{dim\_user}, \code{dim\_category}, \code{dim\_account}, \code{dim\_date}) et la table de faits (\code{fact\_transaction}). Cette structure permet des filtres croisés fluides et performants.
+
+\subsection{Mesures DAX Avancées}
+Pour enrichir l'analyse, plusieurs mesures DAX ont été créées :
+\begin{itemize}
+    \item \textbf{Total Dépenses} : \code{SUMX(FILTER(fact\_transaction, [is\_income]=0), [amount])}
+    \item \textbf{Total Revenus} : \code{SUMX(FILTER(fact\_transaction, [is\_income]=1), [amount])}
+    \item \textbf{Solde Moyen} : \code{AVERAGEX(VALUES(dim\_date[month]), [Total Revenus] - [Total Dépenses])}
+\end{itemize}
+
+%=============================================================================
+% INTÉGRATION MERN
+%=============================================================================
+\section{Intégration dans l'Application MERN}
+
+L'intégration est réalisée via un composant React dédié \code{DashboardBI.jsx}. Ce composant encapsule le rapport Power BI publié sur le service Cloud à l'aide d'une \code{iframe} sécurisée, parfaitement intégrée au design "Glassmorphism" de l'application.
+
+\begin{lstlisting}[language=JavaScript, caption=Intégration du rapport dans React]
+const DashboardBI = () => {
+    const biEmbedUrl = "https://app.powerbi.com/view?r=...";
+    return (
+        <div className="bi-dashboard-container">
+            <div className="bi-frame-wrapper">
+                <iframe
+                    title="SmartWallet BI Analytics"
+                    width="100%"
+                    height="600"
+                    src={biEmbedUrl}
+                    frameBorder="0"
+                    allowFullScreen={true}
+                ></iframe>
+            </div>
+        </div>
+    );
+};
+\end{lstlisting}
+
+%=============================================================================
+% CONCLUSION
+%=============================================================================
+\section{Conclusion}
+Le projet SmartWallet BI démontre avec succès comment une approche structurée de la donnée permet d'apporter une valeur ajoutée significative à une application MERN. La séparation entre base opérationnelle (MongoDB) et analytique (MySQL) garantit des performances optimales, tandis que Power BI offre une puissance de visualisation décisionnelle de haut niveau pour l'utilisateur final.
+
+\end{document}

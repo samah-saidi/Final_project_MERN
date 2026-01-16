@@ -56,6 +56,10 @@ const Home = () => {
                         <span className="card-icon">📁</span>
                         <span className="card-text">Categories</span>
                     </Link>
+                    <Link to="/bi-dashboard" className="floating-card card-6">
+                        <span className="card-icon">📈</span>
+                        <span className="card-text">BI Dashboard</span>
+                    </Link>
                 </div>
             </section>
 

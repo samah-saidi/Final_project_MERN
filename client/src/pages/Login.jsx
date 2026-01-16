@@ -48,7 +48,7 @@ const Login = () => {
                 timer: 2000,
                 showConfirmButton: false
             });
-            navigate('/profile');
+            navigate('/');
         } else {
             Swal.fire({
                 icon: 'error',

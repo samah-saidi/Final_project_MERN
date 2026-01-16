@@ -17,6 +17,7 @@ import SavingsGoals from './pages/SavingsGoals';
 import Notifications from './pages/Notifications';
 import AIAdvisor from './pages/AIAdvisor';
 import AIChatbot from './components/AIChatbot';
+import DashboardBI from './pages/DashboardBI';
 import NotFound from './pages/NotFound';
 
 function App() {
@@ -106,6 +107,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <AIAdvisor />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/bi-dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardBI />
               </ProtectedRoute>
             }
           />
